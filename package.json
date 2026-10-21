@@ -1,0 +1,25 @@
+{
+  "name": "pi-linkly-memory",
+  "version": "0.1.0",
+  "description": "Long-term memory for Pi, stored as notes in Linkly AI",
+  "keywords": [
+    "pi-package",
+    "memory",
+    "linkly-ai"
+  ],
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/LinklyAI/pi-linkly-memory#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LinklyAI/pi-linkly-memory.git"
+  },
+  "type": "module",
+  "pi": {
+    "extensions": [
+      "./linkly-memory.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}
