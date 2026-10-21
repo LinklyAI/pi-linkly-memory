@@ -51,7 +51,7 @@ function noteBody(content: string): string {
 
 async function loadMemories(): Promise<Memory[]> {
 	const list = JSON.parse(
-		await runCli(["list", "--scope", "notes", "--tags", TAG, "--sort", "oldest", "--limit", "50"]),
+		await runCli(["list", "--scope", "notes", "--tags", TAG, "--sort", "oldest", "--no-snippet", "--limit", "200"]),
 	);
 	const items: any[] = list.items ?? [];
 	if (items.length === 0) return [];
@@ -71,7 +71,7 @@ async function loadMemories(): Promise<Memory[]> {
 		noteId: item.note_id,
 		version: item.version,
 		docId: item.doc_id,
-		body: bodies.get(item.doc_id) ?? item.snippet ?? "",
+		body: bodies.get(item.doc_id) ?? item.title ?? "",
 	}));
 }
 
