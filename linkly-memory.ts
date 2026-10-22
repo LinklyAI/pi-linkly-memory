@@ -3,9 +3,9 @@
  *
  * Gives Pi long-term memory backed by Linkly AI notes. Memories are notes
  * tagged #记忆 (override with LINKLY_MEMORY_TAG). Before every run the
- * extension lists them through the linkly CLI and injects their full text
- * into the system prompt, together with rules for saving new memories with
- * the Linkly AI MCP tool note_save.
+ * extension lists them through the linkly CLI and injects them into the
+ * system prompt, together with rules for saving new memories with the
+ * Linkly AI MCP tool note_save.
  *
  * Requirements:
  * - Linkly AI Desktop running and the `linkly` CLI on PATH
@@ -27,7 +27,8 @@ interface Memory {
 	noteId: string;
 	version: string;
 	docId: string;
-	body: string;
+	/** Undefined when the note couldn't be read in full. */
+	body?: string;
 }
 
 function runCli(args: string[]): Promise<string> {
@@ -62,7 +63,9 @@ async function loadMemories(): Promise<Memory[]> {
 	for (const line of output.split("\n")) {
 		if (!line.trim()) continue;
 		const doc = JSON.parse(line);
-		if (doc.status === "success" && typeof doc.content === "string") {
+		// `read` stops at 200 lines, and a cut-off body would pass for the whole note in an edit.
+		const cutOff = doc.shown_to < doc.total_lines;
+		if (doc.status === "success" && typeof doc.content === "string" && !cutOff) {
 			bodies.set(doc.doc_id, noteBody(doc.content));
 		}
 	}
@@ -71,7 +74,7 @@ async function loadMemories(): Promise<Memory[]> {
 		noteId: item.note_id,
 		version: item.version,
 		docId: item.doc_id,
-		body: bodies.get(item.doc_id) ?? item.title ?? "",
+		body: bodies.get(item.doc_id),
 	}));
 }
 
@@ -79,9 +82,9 @@ function renderSection(memories: Memory[]): string {
 	let used = 0;
 	const entries = memories.map((memory, index) => {
 		const header = `### Memory ${index + 1} (note_id: ${memory.noteId}, version: ${memory.version})`;
-		if (used + memory.body.length > MAX_CHARS) {
-			const title = memory.body.split("\n", 1)[0];
-			return `${header}\n${title} (not loaded; read it with the Linkly AI read tool, doc_id ${memory.docId})`;
+		if (memory.body === undefined || used + memory.body.length > MAX_CHARS) {
+			const title = memory.body ? `${memory.body.split("\n", 1)[0]} ` : "";
+			return `${header}\n${title}(not loaded; read it with the Linkly AI read tool, doc_id ${memory.docId})`;
 		}
 		used += memory.body.length;
 		return `${header}\n${memory.body}`;
