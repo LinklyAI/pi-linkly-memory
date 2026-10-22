@@ -27,13 +27,13 @@ Start `pi` and state a preference. Pi saves it and tells you what it remembered.
 ## How it works
 
 - **Read.** Before every agent run, the extension lists the notes tagged `#记忆` with the `linkly` CLI, reads them, and adds them to the system prompt as a `user_memory` section, together with rules for when and how to save memories. Editing a memory in Linkly AI takes effect on the next message.
-- **Write.** The model saves and updates memories with the Linkly AI MCP tool `note_save`. A memory that covers the same topic is updated instead of duplicated.
+- **Write.** Following those rules, the model saves and updates memories with the Linkly AI MCP tool `note_save`. The rules tell it to update a memory that already covers the topic instead of creating a duplicate.
 
 ## Managing memories
 
 Memories are ordinary Linkly AI notes, so you can read, edit, or delete them in the app. To see them in one place, create a library and add a note filter for the `记忆` tag; matching notes are added automatically.
 
-Up to 12,000 characters of memories are loaded in full. Past that, the remaining memories are listed by title and the model reads them when needed.
+The extension loads up to 200 memories and puts up to 12,000 characters of them into the prompt in full. The rest are listed by title, and a memory longer than 200 lines is not included in full either; the model reads them when needed.
 
 ## Configuration
 
